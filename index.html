@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>07. Sitzung: Multimodale Web-Kommunikation | TU Berlin</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          colors: {
+            tu: {
+              red: '#9E0B0F',
+              crimson: '#C50E1F',
+              darkred: '#7F080C',
+              light: '#FDF2F2',
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* Sanftes Scrollen und grundlegende Typografie */
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+
+    /* Versteckte Scrollbar für horizontale Tab-Leiste auf Mobilgeräten */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Druckfreundliches Layout (@media print) */
+    @media print {
+      header,
+      nav,
+      .no-print,
+      #toast-container {
+        display: none !important;
+      }
+      body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+      }
+      .tab-panel {
+        display: block !important;
+        margin-bottom: 2rem;
+        page-break-after: always;
+      }
+      .tab-panel:last-of-type {
+        page-break-after: auto;
+      }
+      .print-break-avoid {
+        break-inside: avoid;
+      }
+      a {
+        text-decoration: underline;
+        color: #000000 !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-tu-red/15 selection:text-tu-red">
+
+  <!-- ===================================================================== -->
+  <!-- STICKY HEADER                                                         -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Obere Zeile: Kurstitel, Fortschritt & ISIS-Button -->
+      <div class="py-3 sm:py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <!-- Linke Seite: TU Berlin Logo, Trennlinie & Kurstitel -->
+        <div class="flex items-center gap-3.5 sm:gap-4 min-w-0">
+          <!-- Offizielles TU Berlin Logo als eigenständiges Inline-SVG -->
+          <div class="shrink-0 bg-white rounded-lg p-1 flex items-center justify-center" title="Technische Universität Berlin">
+            <svg
+              viewBox="0 0 212 152"
+              class="h-9 sm:h-11 w-auto block"
+              role="img"
+              aria-label="TU Berlin Logo"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <!-- Linker vertikaler Balken des T -->
+              <path d="M 51 52 L 93 52 L 85 138 L 43 138 Z" fill="#9E0B0F" />
+              <!-- Oberer Balken des T + linker gebogener Schenkel des U -->
+              <path
+                d="M 26 2 L 130 2 C 144 2 153 12 152 26 L 141 148 C 115 147 97 132 98 110 L 104 47 L 26 47 A 22.5 22.5 0 0 1 26 2 Z"
+                fill="#9E0B0F"
+              />
+              <!-- Rechter Schenkel des U mit abgerundeter Basis -->
+              <path
+                d="M 159 14 L 207 14 L 199 102 C 196 130 175 148 147 148 Z"
+                fill="#9E0B0F"
+              />
+              <!-- Vertikaler Schriftzug "berlin" im rechten Balken -->
+              <text
+                transform="translate(189, 102) rotate(-84.8)"
+                fill="#FFFFFF"
+                font-family="Inter, Arial, Helvetica, sans-serif"
+                font-weight="800"
+                font-size="29.5"
+                letter-spacing="-0.6"
+              >berlin</text>
+            </svg>
+          </div>
+
+          <!-- Dezente vertikale Trennlinie -->
+          <div class="h-9 sm:h-10 w-px bg-slate-200 shrink-0" aria-hidden="true"></div>
+
+          <!-- Kurstitel & Institutsangabe -->
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs font-medium text-slate-500">
+              <span>Technische Universität Berlin</span>
+              <span aria-hidden="true">·</span>
+              <span>Institut für Sprache und Kommunikation</span>
+            </div>
+            <h1 class="text-sm sm:text-base lg:text-lg font-bold text-slate-900 leading-snug truncate sm:whitespace-normal">
+              [WiSe 2026/27] M.Sc.-SK: Angewandte Linguistik – 07. Sitzung (25.11.2026)
+            </h1>
+          </div>
+        </div>
+
+        <!-- Rechte Seite: Fortschrittsanzeige & ISIS-Abgabe-Button -->
+        <div class="flex flex-wrap items-center justify-between md:justify-end gap-3">
+          <!-- Fortschrittsanzeige (X / 20 Punkte) -->
+          <div class="flex items-center gap-2.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5" aria-live="polite">
+            <div class="text-xs">
+              <span class="text-slate-500 block leading-none mb-1">Fortschritt</span>
+              <span id="header-points-text" class="font-bold text-slate-900 leading-none">0 / 20 Punkte</span>
+            </div>
+            <div class="w-16 sm:w-20 h-2 bg-slate-200 rounded-full overflow-hidden">
+              <div id="header-progress-bar" class="h-full bg-tu-red rounded-full transition-all duration-300" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Prominenter ISIS-Button -->
+          <a
+            href="https://isis.tu-berlin.de/mod/assign/view.php?id=2346775"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tu-red hover:bg-tu-darkred text-white text-xs sm:text-sm font-semibold shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-tu-red focus:ring-offset-2"
+          >
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+            <span>Zur ISIS-Abgabe</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Untere Zeile: 4 Navigationstabs -->
+      <nav aria-label="Hauptnavigation" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mb-px pt-1">
+        <button
+          type="button"
+          data-tab="tab-overview"
+          class="tab-btn whitespace-nowrap px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold border-b-2 border-tu-red text-tu-red transition-colors rounded-t-lg"
+          aria-selected="true"
+        >
+          1. Übersicht &amp; Zeitplan
+        </button>
+        <button
+          type="button"
+          data-tab="tab-theory"
+          class="tab-btn whitespace-nowrap px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-colors rounded-t-lg"
+          aria-selected="false"
+        >
+          2. Skript: Theorie
+        </button>
+        <button
+          type="button"
+          data-tab="tab-tools"
+          class="tab-btn whitespace-nowrap px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-colors rounded-t-lg"
+          aria-selected="false"
+        >
+          3. KI-Tools &amp; Konzepte (2026)
+        </button>
+        <button
+          type="button"
+          data-tab="tab-tasks"
+          class="tab-btn whitespace-nowrap px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-colors rounded-t-lg"
+          aria-selected="false"
+        >
+          4. Gruppenaufgaben (20 P.)
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- HAUPTINHALT                                                           -->
+  <!-- ===================================================================== -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: ÜBERSICHT & ZEITPLAN                                         -->
+    <!-- =================================================================== -->
+    <section id="tab-overview" class="tab-panel space-y-6">
+      <!-- Hero / Sitzungsinformationen -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-tu-light text-tu-red border border-tu-red/20">
+            Asynchrone Gruppenarbeit
+          </span>
+          <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+            Mittwoch, 25. November 2026
+          </span>
+          <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+            90–120 Minuten · 20 Punkte
+          </span>
+        </div>
+
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
+          Multimodale Web-Kommunikation &amp; Generative KI (2. Generation)
+        </h2>
+        <p class="text-sm sm:text-base text-slate-600 mb-6">
+          Deskriptive Analyse von Sprache und Schrift · Dozent: <strong class="text-slate-800">PD Dr. See-Young Cho</strong>
+        </p>
+
+        <!-- Begrüßungsbox -->
+        <div class="bg-slate-50 border-l-4 border-tu-red rounded-r-xl p-5 space-y-3 text-sm sm:text-base text-slate-700 leading-relaxed">
+          <p class="font-semibold text-slate-900">Liebe Studierende,</p>
+          <p>
+            die 07. Sitzung am <strong>Mittwoch, den 25. November 2026</strong>, findet als asynchrone Gruppenarbeit statt. Ziel dieser Arbeitsphase ist es, die theoretischen Grundlagen der <strong>multimodalen Web-Kommunikation</strong> (Text, Bild, Audio, Video) mit der praktischen Anwendung und linguistischen Reflexion aktueller <strong>generativer KI-Systeme der 2. Generation</strong> zu verbinden.
+          </p>
+          <p>
+            Während Systeme der 1. Generation noch mühsames, kleinteiliges „Prompt Engineering“ erforderten, zeichnen sich aktuelle multimodale Modelle durch kontextuelle Schlussfolgerung und konversationelle Steuerung aus. In Ihrer Gruppe erproben Sie diese Arbeitsweise anhand von vier strukturierten Aufgaben und analysieren deren sprachliche sowie medienethische Dimensionen.
+          </p>
+          <div class="bg-white border border-slate-200 rounded-xl p-3.5 text-xs sm:text-sm text-slate-700 flex items-start gap-2.5">
+            <svg class="w-5 h-5 text-tu-red shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+            </svg>
+            <p>
+              <strong>Hinweis zur Werkzeugnutzung (keine Kosten erforderlich):</strong> Alle Aufgaben sind <strong>ohne kostenpflichtige Abonnements</strong> lösbar. Bildbearbeitungs- und Layout-Aufgaben lassen sich über kostenfreie Zugänge (z. B. Google AI Studio / Gemini) testen. Wo Video-Tools (z. B. Veo oder Sora) kostenpflichtig oder kontingentiert sind, liegt der Bewertungsschwerpunkt ausdrücklich auf der <strong>präzisen Prompt-Konzeption, dem Storyboard sowie der linguistischen Analyse und Dokumentation</strong>.
+            </p>
+          </div>
+          <p class="text-sm font-medium text-slate-800 pt-1">
+            Viel Erfolg und inspirierende Diskussionen!<br />
+            <span class="text-slate-600 font-normal">PD Dr. See-Young Cho</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Zwei-Spalten-Layout: Zeitplan & Abgabe-Infobox -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Empfohlener Zeitplan (2/3 Breite) -->
+        <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <div class="flex items-center justify-between gap-2 mb-5">
+            <div>
+              <h3 class="text-lg font-bold text-slate-900">Empfohlener Zeitplan (90–120 Min.)</h3>
+              <p class="text-xs sm:text-sm text-slate-500">Strukturierte Orientierung für Ihre asynchrone Gruppenphase</p>
+            </div>
+            <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold">6 Phasen</span>
+          </div>
+
+          <ol class="relative border-l-2 border-slate-200 ml-3 space-y-5">
+            <li class="pl-6 relative">
+              <span class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-slate-400 ring-4 ring-white"></span>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h4 class="text-sm font-bold text-slate-900">Phase 1: Theorie-Skript &amp; Tool-Überblick (2026)</h4>
+                <span class="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">ca. 15–20 Min.</span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 mt-1">
+                Gemeinsame Lektüre von Tab 2 (<em>Skript: Theorie</em>) und Sichtung der Beispiele in Tab 3 (<em>KI-Tools &amp; Konzepte</em>).
+              </p>
+            </li>
+
+            <li class="pl-6 relative">
+              <span class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-tu-red ring-4 ring-white"></span>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h4 class="text-sm font-bold text-slate-900">Phase 2: Aufgabe 1 – „2. Generation“-Usability-Challenge</h4>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-semibold text-tu-red bg-tu-light px-2.5 py-0.5 rounded-full">4 Punkte</span>
+                  <span class="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">ca. 20 Min.</span>
+                </div>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 mt-1">
+                Konversationelle Bildbearbeitung (Objekt-/Reflexionsentfernung &amp; Hintergrundwechsel) inkl. sprachlicher Reflexion.
+              </p>
+            </li>
+
+            <li class="pl-6 relative">
+              <span class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-tu-red ring-4 ring-white"></span>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h4 class="text-sm font-bold text-slate-900">Phase 3: Aufgabe 2 – Multimodale Layout-Steuerung</h4>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-semibold text-tu-red bg-tu-light px-2.5 py-0.5 rounded-full">5 Punkte</span>
+                  <span class="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">ca. 25 Min.</span>
+                </div>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 mt-1">
+                Erstellung einer beschrifteten Layout-Skizze, Kombination mit Referenzbild und Analyse der Multikodalität.
+              </p>
+            </li>
+
+            <li class="pl-6 relative">
+              <span class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-tu-red ring-4 ring-white"></span>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h4 class="text-sm font-bold text-slate-900">Phase 4: Aufgabe 3 – Mehrsprachiger Micro-Vlog &amp; Timeline-Prompting</h4>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-semibold text-tu-red bg-tu-light px-2.5 py-0.5 rounded-full">6 Punkte</span>
+                  <span class="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">ca. 30 Min.</span>
+                </div>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 mt-1">
+                Konzeption eines 5–8-sekündigen Clips mit Zeitmarken, Gestik, Code-Switching und Untertitel-Ausschluss.
+              </p>
+            </li>
+
+            <li class="pl-6 relative">
+              <span class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-tu-red ring-4 ring-white"></span>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h4 class="text-sm font-bold text-slate-900">Phase 5: Aufgabe 4 – Ethische Leitplanken, Safety-Prompting &amp; Medienkritik</h4>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-semibold text-tu-red bg-tu-light px-2.5 py-0.5 rounded-full">5 Punkte</span>
+                  <span class="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">ca. 20 Min.</span>
+                </div>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 mt-1">
+                Entwicklung eines ambigen Szenarios, präventive Absicherung und Reflexion rechtlicher/ethischer Grenzen.
+              </p>
+            </li>
+
+            <li class="pl-6 relative">
+              <span class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-emerald-600 ring-4 ring-white"></span>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h4 class="text-sm font-bold text-slate-900">Phase 6: Zusammenführung, Qualitätsprüfung &amp; PDF-Export</h4>
+                <span class="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">ca. 10 Min.</span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 mt-1">
+                Überprüfung aller Namen, Matrikelnummern, Screenshots und Reflexionen sowie Upload des gemeinsamen PDFs auf ISIS.
+              </p>
+            </li>
+          </ol>
+        </div>
+
+        <!-- Abgabe-Infobox (1/3 Breite) -->
+        <aside class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-5">
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <div class="w-9 h-9 rounded-xl bg-tu-light text-tu-red flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-slate-900">Abgabe-Informationen</h3>
+            </div>
+
+            <dl class="space-y-3.5 text-sm">
+              <div class="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
+                <dt class="text-xs font-medium text-slate-500 uppercase tracking-wide">ISIS-Aufgabe</dt>
+                <dd class="font-bold text-slate-900 mt-0.5">Abgabe der Gruppenarbeit [20 Punkte]</dd>
+              </div>
+
+              <div class="grid grid-cols-1 gap-2.5">
+                <div class="bg-emerald-50/70 rounded-xl p-3 border border-emerald-200/70">
+                  <dt class="text-xs font-medium text-emerald-700 uppercase tracking-wide">Öffnet</dt>
+                  <dd class="font-semibold text-emerald-950 mt-0.5">Mittwoch, 25. November 2026, 08:00 Uhr</dd>
+                </div>
+                <div class="bg-tu-light/70 rounded-xl p-3 border border-tu-red/20">
+                  <dt class="text-xs font-medium text-tu-red uppercase tracking-wide">Fällig</dt>
+                  <dd class="font-semibold text-slate-900 mt-0.5">Mittwoch, 2. Dezember 2026, 08:00 Uhr</dd>
+                </div>
+              </div>
+
+              <div class="pt-1">
+                <dt class="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">Erforderliches Abgabeformat</dt>
+                <dd class="text-xs sm:text-sm text-slate-600 space-y-1.5">
+                  <p><strong>1 gemeinsames PDF-Dokument</strong> pro Gruppe mit:</p>
+                  <ul class="list-disc list-inside space-y-1 text-slate-600">
+                    <li>Namen &amp; Matrikelnummern aller Gruppenmitglieder</li>
+                    <li>Screenshots bzw. Links aller generierten Ergebnisse</li>
+                    <li>Dokumentation der verwendeten Prompts</li>
+                    <li>Schriftlichen linguistischen Reflexionen zu allen 4 Aufgaben</li>
+                  </ul>
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="pt-2 space-y-2.5">
+            <a
+              href="https://isis.tu-berlin.de/mod/assign/view.php?id=2346775"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-tu-red hover:bg-tu-darkred text-white text-sm font-semibold shadow-sm transition-colors"
+            >
+              <span>Direkt zur ISIS-Abgabe</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+              </svg>
+            </a>
+            <button
+              type="button"
+              onclick="switchTab('tab-tasks')"
+              class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-semibold transition-colors"
+            >
+              <span>Direkt zu den Gruppenaufgaben</span>
+            </button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: SKRIPT: THEORIE                                              -->
+    <!-- =================================================================== -->
+    <section id="tab-theory" class="tab-panel hidden space-y-6">
+      <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <span class="text-xs font-semibold uppercase tracking-wider text-tu-red">Theoretisches Skript · Aktualisiert 2026</span>
+          <button
+            type="button"
+            onclick="window.print()"
+            class="no-print inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-medium text-slate-600 transition-colors"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
+            </svg>
+            <span>Druckansicht</span>
+          </button>
+        </div>
+
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-4">
+          Multimodale Web-Kommunikation: Text, Audio, Bild und Video
+        </h2>
+        <p class="text-sm sm:text-base text-slate-700 leading-relaxed mb-6">
+          <strong>Multimodale Kommunikation</strong> bezeichnet die systematische Kombination verschiedener Medien- und Zeichenformate – insbesondere <strong>Text, Audio, Bild und Video</strong> –, um Informationen präzise, anschaulich und adressatengerecht zu vermitteln. Durch das gezielte Zusammenspiel der Stärken einzelner Medien entstehen kohärente Kommunikationsangebote, die ein tieferes Verständnis und höhere Interaktion ermöglichen.
+        </p>
+
+        <!-- 1. Definition & Grundlagen -->
+        <div class="mb-8">
+          <h3 class="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-tu-red text-white text-xs font-bold flex items-center justify-center">1</span>
+            <span>Definition und sprachwissenschaftliche Grundlagen</span>
+          </h3>
+          <p class="text-sm sm:text-base text-slate-700 leading-relaxed mb-4">
+            Ein zentraler Begriff in diesem Zusammenhang ist <strong>Multimedia</strong>: Er beschreibt digitale Inhalte, die aus mehreren integrierten Medienarten (Text, Fotografie, Grafik, Animation, Audio und Video) bestehen und simultan rezipiert werden können [1]. Aus Sicht der Angewandten Linguistik und Medienwissenschaft ist dabei die analytische Unterscheidung zweier Dimensionen entscheidend [1]:
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+              <h4 class="font-bold text-slate-900 text-sm sm:text-base mb-1">Multikodalität (Zeichensysteme / Codes)</h4>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Bezeichnet die Kombination unterschiedlicher <strong>Kodierungsformen</strong> innerhalb eines Kommunikats – etwa geschriebene Sprache (symbolischer Code), Abbildungen oder Diagramme (ikonischer Code) und Layout-Strukturen (räumlicher Code).
+              </p>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+              <h4 class="font-bold text-slate-900 text-sm sm:text-base mb-1">Multimodalität (Sinnesmodalitäten)</h4>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Bezeichnet die gleichzeitige Ansprache mehrerer <strong>Sinneskanäle</strong> der Rezipierenden – im Web vor allem des visuellen Kanals (Text, Bild, Bewegtbild) und des auditiven Kanals (gesprochene Sprache, Musik, Geräusche).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Kommunikative Vorteile (4 Karten) -->
+        <div class="mb-8">
+          <h3 class="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-tu-red text-white text-xs font-bold flex items-center justify-center">2</span>
+            <span>Kommunikative Vorteile multimodaler Formate</span>
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm print-break-avoid">
+              <div class="text-xs font-bold text-tu-red uppercase tracking-wide mb-1">Vorteil 01</div>
+              <h4 class="font-bold text-slate-900 mb-1.5">Erhöhte Aufmerksamkeit</h4>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Multimediale Inhalte wecken signifikant mehr Interesse als rein textbasierte Beiträge. Branchenstudien belegen, dass etwa Pressemitteilungen mit Bild- oder Videoelementen eine um <strong>bis zu 41 % höhere Zugriffsrate</strong> erzielen als reine Textmeldungen [2].
+              </p>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm print-break-avoid">
+              <div class="text-xs font-bold text-tu-red uppercase tracking-wide mb-1">Vorteil 02</div>
+              <h4 class="font-bold text-slate-900 mb-1.5">Verbesserte Informationsaufnahme</h4>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Die parallele Vermittlung über verschiedene Sinneskanäle (z. B. visuelles Diagramm + gesprochene Erläuterung) unterstützt Lern- und Verstehensprozesse im Sinne der <strong>Dual-Coding-Theorie</strong> und reduziert kognitive Überlastung [1][2].
+              </p>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm print-break-avoid">
+              <div class="text-xs font-bold text-tu-red uppercase tracking-wide mb-1">Vorteil 03</div>
+              <h4 class="font-bold text-slate-900 mb-1.5">Interaktivität</h4>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Multimodale Web-Umgebungen verwandeln passive Rezeption in aktive Exploration. Nutzerinnen und Nutzer steuern Inhalte selbstbestimmt – ein zentraler Erfolgsfaktor für E-Learning, digitale Dokumentation und Wissensplattformen [1].
+              </p>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm print-break-avoid">
+              <div class="text-xs font-bold text-tu-red uppercase tracking-wide mb-1">Vorteil 04</div>
+              <h4 class="font-bold text-slate-900 mb-1.5">Medien-Flexibilität &amp; Arbeitsteilung</h4>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Jedes Medium besitzt spezifische kommunikative Stärken: <strong>Text</strong> leistet Präzision und Detailtiefe, <strong>Video</strong> visualisiert komplexe zeitliche Abläufe, während <strong>Audio</strong> Emotionalität, Prosodie und lebendiges Storytelling transportiert [3][4].
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Anwendungsbereiche -->
+        <div class="mb-8">
+          <h3 class="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-tu-red text-white text-xs font-bold flex items-center justify-center">3</span>
+            <span>Zentrale Anwendungsbereiche</span>
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+              <h4 class="font-bold text-slate-900 text-sm mb-1.5">Marketing &amp; PR</h4>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Unternehmen kombinieren Text, Bild, Kurzvideo und Audio, um Markenbotschaften prägnant zu inszenieren, sich in der Aufmerksamkeitsökonomie abzuheben und die organische Reichweite zu steigern [2].
+              </p>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+              <h4 class="font-bold text-slate-900 text-sm mb-1.5">Technische Kommunikation</h4>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                In Bedienungsanleitungen und Software-Dokumentationen reduzieren kommentierte Screenshots, Schemata und Erklärvideos Missverständnisse bei komplexen Installations- und Wartungsprozessen [4].
+              </p>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+              <h4 class="font-bold text-slate-900 text-sm mb-1.5">Bildung &amp; Hochschullehre</h4>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Die gezielte Verbindung aus Skript, Screencast, Audio-Erklärung und interaktiver Aufgabe steigert Motivation, Behaltensleistung und Lernerfolg in hybriden sowie asynchronen Lehrformaten [4][5].
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Herausforderungen & Wandel im Zeitalter generativer KI (2026) -->
+        <div class="mb-8">
+          <h3 class="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-tu-red text-white text-xs font-bold flex items-center justify-center">4</span>
+            <span>Herausforderungen &amp; Wandel im Zeitalter generativer KI (Stand 2026)</span>
+          </h3>
+          <div class="space-y-3">
+            <div class="border border-slate-200 rounded-xl p-4 bg-white">
+              <h4 class="font-bold text-slate-900 text-sm sm:text-base mb-1">Produktionskomplexität &amp; Rollenwandel</h4>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Traditionell erforderte professionelle Multimediaproduktion erhebliche finanzielle, zeitliche und technische Ressourcen. <strong>Generative KI (Stand 2026)</strong> senkt diese Produktionshürden drastisch, verlagert den menschlichen Aufwand jedoch von der manuellen Erstellung hin zu <strong>Kuratierung, präziser sprachlicher Steuerung, Faktencheck und medienübergreifender Kohärenzprüfung</strong>.
+              </p>
+            </div>
+
+            <div class="border border-slate-200 rounded-xl p-4 bg-white">
+              <h4 class="font-bold text-slate-900 text-sm sm:text-base mb-1">Zugänglichkeit &amp; digitale Barrierefreiheit</h4>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Nicht alle Nutzenden verfügen über identische Endgeräte, Bandbreiten oder sensorische Voraussetzungen. Professionelle multimodale Web-Kommunikation verlangt daher konsequent <strong>Alternativtexte (Alt-Texte), präzise Untertitel, Transkripte</strong> sowie ausreichend hohe Kontraste.
+              </p>
+            </div>
+
+            <div class="border border-slate-200 rounded-xl p-4 bg-white">
+              <h4 class="font-bold text-slate-900 text-sm sm:text-base mb-1">Rechtliche &amp; ethische Aspekte (Urheberrecht, Deepfakes, EU AI Act)</h4>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Neben klassischen Fragen des Urheber- und Lizenzrechts [4] gewinnen 2026 <strong>Persönlichkeitsrechte (Stimm- und Gesichtskloning / Deepfakes)</strong> sowie verbindliche <strong>Transparenz- und Kennzeichnungspflichten</strong> für synthetische Inhalte (u. a. im Rahmen des <strong>EU AI Act</strong> sowie technischer Herkunftsnachweise wie <strong>C2PA</strong> und digitaler Wasserzeichen wie <strong>SynthID</strong>) massiv an Bedeutung.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Text-to-Music (TTM) & Praxisbeispiele -->
+        <div class="mb-8 bg-slate-50 border border-slate-200 rounded-2xl p-5">
+          <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-tu-red text-white text-xs font-bold flex items-center justify-center">5</span>
+            <span>Text-to-Music (TTM) &amp; multimodale Audio-Praxisbeispiele</span>
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+            Zur multimodalen Web-Kommunikation zählt neben Text, Bild und Video zunehmend auch KI-generiertes Audio. Mit <strong>Text-to-Music-Modellen (TTM)</strong> wie <em>Suno</em> lassen sich aus rein textuellen Stil-, Stimmungs- und Lyrik-Vorgaben vollständige Musikstücke für Podcasts, Intros oder Erklärvideos erzeugen:
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <a
+              href="https://suno.com/song/9db84a3b-0fd9-4780-a15a-b8d747cefdde"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-300 hover:border-tu-red hover:text-tu-red text-xs sm:text-sm font-semibold text-slate-800 shadow-sm transition-colors"
+            >
+              <svg class="w-4 h-4 text-tu-red" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" />
+              </svg>
+              <span>Suno TTM-Beispiel 1 anhören</span>
+            </a>
+            <a
+              href="https://suno.com/song/7c57eea3-8a70-4029-b0f8-c42b6563545a"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-300 hover:border-tu-red hover:text-tu-red text-xs sm:text-sm font-semibold text-slate-800 shadow-sm transition-colors"
+            >
+              <svg class="w-4 h-4 text-tu-red" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" />
+              </svg>
+              <span>Suno TTM-Beispiel 2 anhören</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- 6. Quellenverzeichnis -->
+        <div>
+          <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-slate-800 text-white text-xs font-bold flex items-center justify-center">6</span>
+            <span>Quellenverzeichnis</span>
+          </h3>
+          <ol class="space-y-1.5 text-xs sm:text-sm text-slate-600 list-decimal list-inside bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <li>
+              Wikipedia: <em>Multimedia</em> –
+              <a href="https://de.wikipedia.org/wiki/Multimedia" target="_blank" rel="noopener noreferrer" class="text-tu-red hover:underline break-all">https://de.wikipedia.org/wiki/Multimedia</a>
+            </li>
+            <li>
+              news aktuell Blog: <em>Multimedia in der PR – Bilder, Videos und Audios für mehr Aufmerksamkeit und Reichweite</em> –
+              <a href="https://www.newsaktuell.de/blog/multimedia-in-der-pr-bilder-videos-und-audios-fuer-mehr-aufmerksamkeit-und-reichweite/" target="_blank" rel="noopener noreferrer" class="text-tu-red hover:underline break-all">newsaktuell.de/blog/multimedia-in-der-pr...</a>
+            </li>
+            <li>
+              Chimpify: <em>Text, Audio, Video – Welches Content-Medium passt wann?</em> –
+              <a href="https://www.chimpify.de/marketing/text-audio-video-welches-content-medium/" target="_blank" rel="noopener noreferrer" class="text-tu-red hover:underline break-all">chimpify.de/marketing/text-audio-video...</a>
+            </li>
+            <li>
+              TechSmith Blog: <em>Text, Bilder und Videos in der technischen Kommunikation</em> –
+              <a href="https://www.techsmith.de/blog/text-bilder-videos-technische-kommunikation/" target="_blank" rel="noopener noreferrer" class="text-tu-red hover:underline break-all">techsmith.de/blog/text-bilder-videos...</a>
+            </li>
+            <li>
+              Contentman: <em>Text, Audio oder Video? Eine Entscheidungshilfe für Content-Macher</em> –
+              <a href="https://www.contentman.de/content-marketing/text-audio-oder-video-eine-entscheidungshilfe-fuer-content-macher/" target="_blank" rel="noopener noreferrer" class="text-tu-red hover:underline break-all">contentman.de/content-marketing/text-audio-oder-video...</a>
+            </li>
+            <li>
+              Goethe-Universität Frankfurt (Lehre virtuell): <em>Wann nutze ich welches Medium?</em> –
+              <a href="https://lehre-virtuell.uni-frankfurt.de/knowhow/wann-nutzte-ich-welches-medium/" target="_blank" rel="noopener noreferrer" class="text-tu-red hover:underline break-all">lehre-virtuell.uni-frankfurt.de/knowhow/...</a>
+            </li>
+            <li>
+              German Brand School: <em>Überzeugen, informieren, unterhalten – Welche Content-Formate soll ich nutzen?</em> –
+              <a href="https://blog.germanbrand.school/ueberzeugen-informieren-unterhalten-welche-content-formate-soll-ich-nutzen" target="_blank" rel="noopener noreferrer" class="text-tu-red hover:underline break-all">blog.germanbrand.school/ueberzeugen-informieren...</a>
+            </li>
+            <li>
+              Medien-Akademie: <em>Storytelling in Text, Bild, Video und Ton</em> –
+              <a href="https://www.medien-akademie.de/seminarangebot/online-seminar-storytelling-in-text-bild-video-und-ton/" target="_blank" rel="noopener noreferrer" class="text-tu-red hover:underline break-all">medien-akademie.de/seminarangebot/...</a>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: KI-TOOLS & KONZEPTE (2026)                                   -->
+    <!-- =================================================================== -->
+    <section id="tab-tools" class="tab-panel hidden space-y-6">
+      <!-- Paradigmenwechsel: 1. vs. 2. Generation -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <span class="text-xs font-semibold uppercase tracking-wider text-tu-red">Konzeptioneller Rahmen · 2026</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1 mb-2">
+          Paradigmenwechsel: 1. Generation vs. 2. Generation generativer KI
+        </h2>
+        <p class="text-sm sm:text-base text-slate-600 mb-6">
+          Der Übergang zu multimodalen Modellen der 2. Generation verändert nicht nur die Medienproduktion, sondern grundlegend die <strong>sprachliche Mensch-Maschine-Interaktion</strong>.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- 1. Generation -->
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-700">1. Generation</span>
+                <span class="text-xs text-slate-500">z. B. frühes Stable Diffusion, Midjourney</span>
+              </div>
+              <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-2">Technisches „Prompt Engineering“</h3>
+              <ul class="space-y-1.5 text-xs sm:text-sm text-slate-600 list-disc list-inside mb-4">
+                <li>Kryptische Keyword-Ketten, Gewichtungsparameter und Negativ-Prompts erforderlich.</li>
+                <li>Geringes kontextuelles Verständnis für komplexe räumliche oder dialogische Bezüge.</li>
+                <li>Hoher iterativer Aufwand („Trial &amp; Error“), kaum echte Konversationsfähigkeit.</li>
+              </ul>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-3.5 text-xs sm:text-sm text-slate-700 italic">
+              <strong class="not-italic text-slate-900 block mb-0.5">Metapher:</strong>
+              „Wie ein professioneller Koch, dem man erst ein 50-seitiges Kochbuch vorlegen muss, damit er ein einzelnes Gericht exakt zubereitet.“
+            </div>
+          </div>
+
+          <!-- 2. Generation -->
+          <div class="bg-tu-light/40 border border-tu-red/30 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-tu-red text-white">2. Generation (aktuell)</span>
+                <span class="text-xs text-slate-600">z. B. Nano Banana / Gemini, Veo 3/3.1+, Sora 2</span>
+              </div>
+              <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-2">Kontextuelle Schlussfolgerung &amp; Konversation</h3>
+              <ul class="space-y-1.5 text-xs sm:text-sm text-slate-700 list-disc list-inside mb-4">
+                <li><strong>Native Multimodalität:</strong> Verarbeitung kombinierter Eingaben (Text, Skizze, Foto, Audio) in einem Modell.</li>
+                <li>Natürliche, alltagssprachliche Anweisungen (<em>„Mach es so“</em>) statt technischer Syntax.</li>
+                <li>Präzise Steuerung von Zeitachsen (Timeline Actions), Mehrsprachigkeit und Sicherheitsregeln.</li>
+              </ul>
+            </div>
+            <div class="bg-white border border-tu-red/20 rounded-xl p-3.5 text-xs sm:text-sm text-slate-700 italic">
+              <strong class="not-italic text-tu-red block mb-0.5">Metapher:</strong>
+              „Wie ein intelligenter persönlicher Assistent, dem man einfach zuruft: <em>Nimm dieses Bild, entferne den Hintergrund, stell mich in New York auf eine Terrasse und achte auf die Hausordnung</em> – und er setzt es kontextsensibel um.“
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filterbare Tool- & Prompt-Referenztabelle -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+          <div>
+            <h3 class="text-lg sm:text-xl font-bold text-slate-900">Tool- &amp; Prompt-Referenztabelle (2026)</h3>
+            <p class="text-xs sm:text-sm text-slate-500">Kuratierte Praxisbeispiele mit Kopierfunktion für Ihre Gruppenarbeit</p>
+          </div>
+
+          <!-- Filter-Buttons -->
+          <div class="flex flex-wrap gap-1.5 no-print" role="group" aria-label="Beispiele filtern">
+            <button type="button" data-filter="all" class="tool-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white transition-colors">
+              Alle (9)
+            </button>
+            <button type="button" data-filter="image" class="tool-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
+              Bild (AI Studio / Nano Banana)
+            </button>
+            <button type="button" data-filter="video" class="tool-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
+              Video (Veo / Sora)
+            </button>
+            <button type="button" data-filter="safety" class="tool-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
+              Sicherheit &amp; Ethik
+            </button>
+          </div>
+        </div>
+
+        <!-- Responsive Tabelle -->
+        <div class="overflow-x-auto border border-slate-200 rounded-xl">
+          <table class="min-w-full divide-y divide-slate-200 text-left text-xs sm:text-sm">
+            <thead class="bg-slate-50 text-slate-700 font-semibold">
+              <tr>
+                <th scope="col" class="px-4 py-3 w-44">Tool / Modell</th>
+                <th scope="col" class="px-4 py-3 w-44">Anwendungsfall</th>
+                <th scope="col" class="px-4 py-3">Beispiel-Prompt</th>
+                <th scope="col" class="px-4 py-3 w-52">Linguistisch-technischer Fokus</th>
+              </tr>
+            </thead>
+            <tbody id="tools-table-body" class="divide-y divide-slate-200 bg-white">
+              <!-- 1 -->
+              <tr data-category="image" class="hover:bg-slate-50/70 transition-colors">
+                <td class="px-4 py-3.5 align-top font-semibold text-slate-900">
+                  Google AI Studio / Gemini<br /><span class="text-xs font-normal text-slate-500">(Nano Banana)</span>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-700">Brillenreflexion auf Profilfoto entfernen</td>
+                <td class="px-4 py-3.5 align-top">
+                  <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-mono text-xs text-slate-800 mb-2">
+                    Entferne die Reflexion auf der Brille.
+                  </div>
+                  <button type="button" onclick="copyText('Entferne die Reflexion auf der Brille.', 'Prompt kopiert')" class="no-print inline-flex items-center gap-1 text-xs font-semibold text-tu-red hover:underline">
+                    Kopieren
+                  </button>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-600 text-xs">
+                  Minimaler Imperativsatz; implizite Kontextauflösung ohne Maskierung.
+                </td>
+              </tr>
+
+              <!-- 2 -->
+              <tr data-category="image" class="hover:bg-slate-50/70 transition-colors">
+                <td class="px-4 py-3.5 align-top font-semibold text-slate-900">
+                  Google AI Studio / Gemini<br /><span class="text-xs font-normal text-slate-500">(Nano Banana)</span>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-700">Störendes Objekt aus Foto entfernen</td>
+                <td class="px-4 py-3.5 align-top">
+                  <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-mono text-xs text-slate-800 mb-2">
+                    Lösche die Tasse auf dem Tisch im Foto.
+                  </div>
+                  <button type="button" onclick="copyText('Lösche die Tasse auf dem Tisch im Foto.', 'Prompt kopiert')" class="no-print inline-flex items-center gap-1 text-xs font-semibold text-tu-red hover:underline">
+                    Kopieren
+                  </button>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-600 text-xs">
+                  Lokale Referenz („auf dem Tisch“) + kontextuelles Inpainting des Hintergrunds.
+                </td>
+              </tr>
+
+              <!-- 3 -->
+              <tr data-category="image" class="hover:bg-slate-50/70 transition-colors">
+                <td class="px-4 py-3.5 align-top font-semibold text-slate-900">
+                  Google AI Studio / Gemini<br /><span class="text-xs font-normal text-slate-500">(Nano Banana)</span>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-700">Szenen- und Hintergrundwechsel</td>
+                <td class="px-4 py-3.5 align-top">
+                  <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-mono text-xs text-slate-800 mb-2">
+                    Ändere den Hintergrund der Person zu einer Terrasse in New York bei Tageslicht.
+                  </div>
+                  <button type="button" onclick="copyText('Ändere den Hintergrund der Person zu einer Terrasse in New York bei Tageslicht.', 'Prompt kopiert')" class="no-print inline-flex items-center gap-1 text-xs font-semibold text-tu-red hover:underline">
+                    Kopieren
+                  </button>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-600 text-xs">
+                  Identitätskonsistenz der Person bei gleichzeitiger Licht- und Schattenanpassung.
+                </td>
+              </tr>
+
+              <!-- 4 -->
+              <tr data-category="image" class="hover:bg-slate-50/70 transition-colors">
+                <td class="px-4 py-3.5 align-top font-semibold text-slate-900">
+                  Google AI Studio / Gemini<br /><span class="text-xs font-normal text-slate-500">(Nano Banana)</span>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-700">Outfit-Transfer per Referenzbild</td>
+                <td class="px-4 py-3.5 align-top">
+                  <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-mono text-xs text-slate-800 mb-2">
+                    Ändere die Kleidung der Person im ersten Bild in das Outfit aus dem zweiten Referenzbild.
+                  </div>
+                  <button type="button" onclick="copyText('Ändere die Kleidung der Person im ersten Bild in das Outfit aus dem zweiten Referenzbild.', 'Prompt kopiert')" class="no-print inline-flex items-center gap-1 text-xs font-semibold text-tu-red hover:underline">
+                    Kopieren
+                  </button>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-600 text-xs">
+                  Deiktische Bild-zu-Bild-Referenz („im ersten Bild“ / „aus dem zweiten Referenzbild“).
+                </td>
+              </tr>
+
+              <!-- 5 -->
+              <tr data-category="image" class="hover:bg-slate-50/70 transition-colors">
+                <td class="px-4 py-3.5 align-top font-semibold text-slate-900">
+                  Google AI Studio / Gemini<br /><span class="text-xs font-normal text-slate-500">(Nano Banana)</span>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-700">Layout-gesteuerte Szenengenerierung</td>
+                <td class="px-4 py-3.5 align-top">
+                  <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-mono text-xs text-slate-800 mb-2">
+                    Erstelle eine realistische Café-Szene exakt gemäß der beigefügten Layout-Skizze (Bild 1) und verwende die Frau aus dem Referenzfoto (Bild 2) als Hauptperson.
+                  </div>
+                  <button type="button" onclick="copyText('Erstelle eine realistische Café-Szene exakt gemäß der beigefügten Layout-Skizze (Bild 1) und verwende die Frau aus dem Referenzfoto (Bild 2) als Hauptperson.', 'Prompt kopiert')" class="no-print inline-flex items-center gap-1 text-xs font-semibold text-tu-red hover:underline">
+                    Kopieren
+                  </button>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-600 text-xs">
+                  Multikodale Integration: räumliche Skizze + Textlabels + fotorealistische Referenz.
+                </td>
+              </tr>
+
+              <!-- 6 -->
+              <tr data-category="video" class="hover:bg-slate-50/70 transition-colors">
+                <td class="px-4 py-3.5 align-top font-semibold text-slate-900">
+                  Google Veo 3.0 / 3.1+
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-700">Mehrsprachiger Dialog / Code-Switching im Sprachlern-Micro-Vlog</td>
+                <td class="px-4 py-3.5 align-top">
+                  <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-mono text-xs text-slate-800 mb-2 whitespace-pre-line">Als der kleine Hund auf den Tisch springt, streichelt die Frau ihn lächelnd und spricht in die Kamera:
+1. Deutsch: „Dieser Hund ist wirklich niedlich – auf Englisch sagt man:“
+2. Englisch: „This dog is really cute!“ + Deutsch: „Ganz einfach, oder?“
+*Keine Bildschirm-Untertitel einblenden.</div>
+                  <button type="button" onclick="copyText('Als der kleine Hund auf den Tisch springt, streichelt die Frau ihn lächelnd und spricht in die Kamera:\n1. Deutsch: „Dieser Hund ist wirklich niedlich – auf Englisch sagt man:“\n2. Englisch: „This dog is really cute!“ + Deutsch: „Ganz einfach, oder?“\n*Keine Bildschirm-Untertitel einblenden.', 'Prompt kopiert')" class="no-print inline-flex items-center gap-1 text-xs font-semibold text-tu-red hover:underline">
+                    Kopieren
+                  </button>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-600 text-xs">
+                  Nummerierte Sprachwechsel, Lip-Sync-Synchronisation, explizite Negativ-Direktive für Text-Overlays.
+                </td>
+              </tr>
+
+              <!-- 7 -->
+              <tr data-category="video" class="hover:bg-slate-50/70 transition-colors">
+                <td class="px-4 py-3.5 align-top font-semibold text-slate-900">
+                  Google Veo 3.0 / 3.1+
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-700">Zeitlich getaktete Handlungen (Timeline Actions)</td>
+                <td class="px-4 py-3.5 align-top">
+                  <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-mono text-xs text-slate-800 mb-2 whitespace-pre-line">00:01 Sie bedeckt verlegen ihren Mund und blickt kurz zur Seite.
+00:03 Sie lächelt strahlend in die Kamera und formt mit beiden Händen ein Herz.</div>
+                  <button type="button" onclick="copyText('00:01 Sie bedeckt verlegen ihren Mund und blickt kurz zur Seite.\n00:03 Sie lächelt strahlend in die Kamera und formt mit beiden Händen ein Herz.', 'Prompt kopiert')" class="no-print inline-flex items-center gap-1 text-xs font-semibold text-tu-red hover:underline">
+                    Kopieren
+                  </button>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-600 text-xs">
+                  Temporale Strukturierung über Zeitmarker, präzise Bewegungs- und Emotionsverben.
+                </td>
+              </tr>
+
+              <!-- 8 -->
+              <tr data-category="video" class="hover:bg-slate-50/70 transition-colors">
+                <td class="px-4 py-3.5 align-top font-semibold text-slate-900">
+                  OpenAI Sora<br /><span class="text-xs font-normal text-slate-500">(Sora 2 / Cameo)</span>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-700">Virtueller Vlog / persönlicher Avatar am Strand</td>
+                <td class="px-4 py-3.5 align-top">
+                  <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-mono text-xs text-slate-800 mb-2">
+                    Eine nachdenkliche Person spaziert im warmen Abendlicht langsam am Strand entlang, ruhige Kamerafahrt von der Seite.
+                  </div>
+                  <button type="button" onclick="copyText('Eine nachdenkliche Person spaziert im warmen Abendlicht langsam am Strand entlang, ruhige Kamerafahrt von der Seite.', 'Prompt kopiert')" class="no-print inline-flex items-center gap-1 text-xs font-semibold text-tu-red hover:underline">
+                    Kopieren
+                  </button>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-600 text-xs">
+                  Avatar-Konsistenz &amp; filmische Kameraführung. <strong>Hinweis:</strong> Wasserzeichen-Regelungen &amp; Persönlichkeitsrechte beachten!
+                </td>
+              </tr>
+
+              <!-- 9 -->
+              <tr data-category="safety" class="hover:bg-slate-50/70 transition-colors">
+                <td class="px-4 py-3.5 align-top font-semibold text-slate-900">
+                  Alle multimodalen Tools<br /><span class="text-xs font-normal text-slate-500">(Nano Banana, Veo, Sora)</span>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-700">Präventives Safety-Prompting &amp; Richtlinienkonformität</td>
+                <td class="px-4 py-3.5 align-top">
+                  <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-mono text-xs text-slate-800 mb-2 whitespace-pre-line">* Entferne jegliche gewalthaltige, explizite oder richtlinienwidrige Elemente.
+* Keine synthetische Hintergrundstimme hinzufügen.</div>
+                  <button type="button" onclick="copyText('* Entferne jegliche gewalthaltige, explizite oder richtlinienwidrige Elemente.\n* Keine synthetische Hintergrundstimme hinzufügen.', 'Safety-Prompt kopiert')" class="no-print inline-flex items-center gap-1 text-xs font-semibold text-tu-red hover:underline">
+                    Kopieren
+                  </button>
+                </td>
+                <td class="px-4 py-3.5 align-top text-slate-600 text-xs">
+                  Metasprachliche Leitplanken zur präventiven Disambiguierung und Vermeidung ungewollter Generierungen.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Visuelles Beispiel einer Layout-Skizze -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div class="lg:col-span-7">
+            <span class="text-xs font-semibold uppercase tracking-wider text-tu-red">Visuelles Referenzbeispiel für Aufgabe 2</span>
+            <h3 class="text-lg sm:text-xl font-bold text-slate-900 mt-1 mb-3">
+              Multimodale Layout-Skizze (Räumlicher Code + Textlabels)
+            </h3>
+
+            <!-- SVG Layout-Skizze im dunklen Stil mit gestrichelten farbigen Rahmen -->
+            <div class="rounded-2xl overflow-hidden border border-slate-800 shadow-md bg-slate-950 p-2">
+              <svg viewBox="0 0 800 450" class="w-full h-auto block" role="img" aria-label="Beispiel einer multimodalen Layout-Skizze mit beschrifteten farbigen Bereichen">
+                <!-- Hintergrund -->
+                <rect x="6" y="6" width="788" height="438" rx="18" fill="#111318" stroke="#334155" stroke-width="2" />
+
+                <!-- Grün links oben: Große Zimmerpflanze -->
+                <rect x="28" y="26" width="250" height="275" rx="8" fill="rgba(34,197,94,0.06)" stroke="#22c55e" stroke-width="4" stroke-dasharray="14 10" />
+                <text x="153" y="155" fill="#f8fafc" font-family="Inter, sans-serif" font-size="22" font-weight="600" text-anchor="middle">Große</text>
+                <text x="153" y="185" fill="#f8fafc" font-family="Inter, sans-serif" font-size="22" font-weight="600" text-anchor="middle">Zimmerpflanze</text>
+
+                <!-- Blau links unten: Kleiner Hund (schaut zur Person) -->
+                <rect x="92" y="232" width="215" height="192" rx="8" fill="rgba(59,130,246,0.10)" stroke="#3b82f6" stroke-width="4" stroke-dasharray="14 10" />
+                <text x="199" y="318" fill="#f8fafc" font-family="Inter, sans-serif" font-size="20" font-weight="600" text-anchor="middle">Kleiner Hund</text>
+                <text x="199" y="346" fill="#cbd5e1" font-family="Inter, sans-serif" font-size="16" font-weight="500" text-anchor="middle">(schaut zur Person)</text>
+
+                <!-- Rot Mitte: Hauptperson (Frau) -->
+                <rect x="322" y="88" width="252" height="336" rx="8" fill="rgba(239,68,68,0.07)" stroke="#ef4444" stroke-width="4" stroke-dasharray="14 10" />
+                <text x="448" y="246" fill="#f8fafc" font-family="Inter, sans-serif" font-size="24" font-weight="700" text-anchor="middle">Hauptperson</text>
+                <text x="448" y="276" fill="#fca5a5" font-family="Inter, sans-serif" font-size="18" font-weight="500" text-anchor="middle">(Frau)</text>
+
+                <!-- Grün Mitte unten: Kaffee und Kuchen -->
+                <rect x="468" y="330" width="215" height="94" rx="8" fill="rgba(34,197,94,0.12)" stroke="#22c55e" stroke-width="4" stroke-dasharray="14 10" />
+                <text x="575" y="384" fill="#f8fafc" font-family="Inter, sans-serif" font-size="20" font-weight="600" text-anchor="middle">Kaffee und Kuchen</text>
+
+                <!-- Blau rechts: Lila Blumen -->
+                <rect x="615" y="185" width="160" height="239" rx="8" fill="rgba(59,130,246,0.08)" stroke="#3b82f6" stroke-width="4" stroke-dasharray="14 10" />
+                <text x="695" y="305" fill="#f8fafc" font-family="Inter, sans-serif" font-size="20" font-weight="600" text-anchor="middle">Lila</text>
+                <text x="695" y="333" fill="#f8fafc" font-family="Inter, sans-serif" font-size="20" font-weight="600" text-anchor="middle">Blumen</text>
+              </svg>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5 space-y-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
+            <h4 class="text-base font-bold text-slate-900">Warum überwindet diese Kombination statische Standard-Bilder?</h4>
+            <p>
+              Bei rein textuellen Prompts neigen Bildgeneratoren dazu, Personen zentriert und statisch darzustellen, während Nebenobjekte willkürlich platziert werden.
+            </p>
+            <p>
+              Durch die <strong>multikodale Eingabe</strong> einer beschrifteten Layout-Skizze (räumlicher Code + sprachliche Labels) zusammen mit einem Personen-Referenzbild (visueller Code) übernimmt das Modell der 2. Generation gezielt <strong>Komposition, Blickrichtung und Tiefenstaffelung</strong>.
+            </p>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-slate-700">
+              <strong>Praxisnutzen für Video-Keyframes:</strong> Ein so komponiertes Ausgangsbild bietet Raum für Bewegung und Interaktion (z. B. ein Hund, der auf den Tisch springt) und eignet sich ideal als Startframe für Erklär- oder Sprachlern-Clips.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 4: GRUPPENAUFGABEN (20 PUNKTE)                                  -->
+    <!-- =================================================================== -->
+    <section id="tab-tasks" class="tab-panel hidden space-y-6">
+      <!-- Kopfbereich: Fortschritt & Vorlage kopieren -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-tu-red">Asynchrone Gruppenarbeit · 90–120 Minuten</span>
+            <h2 class="text-2xl font-extrabold text-slate-900 mt-0.5">Gruppenübungsaufgaben (20 Punkte)</h2>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5 no-print">
+            <button
+              type="button"
+              id="copy-template-btn"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold shadow-sm transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+              </svg>
+              <span>Abgabe-Vorlage kopieren</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Fortschrittsbalken -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <div class="flex items-center justify-between text-xs sm:text-sm font-semibold mb-2">
+            <span class="text-slate-700">Bearbeitungsstand Ihrer Gruppe (wird lokal im Browser gespeichert)</span>
+            <span id="tasks-points-text" class="text-tu-red">0 / 20 Punkte erledigt</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+            <div id="tasks-progress-bar" class="h-full bg-tu-red rounded-full transition-all duration-300" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUFGABE 1 -->
+      <article class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-sm print-break-avoid">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 pb-4 border-b border-slate-100">
+          <div>
+            <div class="flex flex-wrap items-center gap-2 mb-1.5">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-tu-light text-tu-red">4 Punkte</span>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">ca. 20 Min.</span>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">Bildbearbeitung</span>
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold text-slate-900">
+              Aufgabe 1: Die „2. Generation“-Usability-Challenge
+            </h3>
+          </div>
+
+          <label class="no-print inline-flex items-center gap-2.5 cursor-pointer select-none bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 transition-colors shrink-0">
+            <input type="checkbox" class="task-checkbox w-4 h-4 accent-tu-red rounded" data-task-id="task1" data-points="4" />
+            <span>Erledigt (4 P.)</span>
+          </label>
+        </div>
+
+        <div class="mt-4 space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
+          <p>
+            <strong class="text-slate-900">Ziel:</strong> Praktische Erprobung der konversationellen Steuerung und kontextuellen Schlussfolgerung aktueller multimodaler Bildmodelle (z. B. Google AI Studio / Gemini).
+          </p>
+
+          <div>
+            <h4 class="font-bold text-slate-900 mb-2">Schrittweiser Ablauf:</h4>
+            <ol class="list-decimal list-inside space-y-1.5 text-slate-700">
+              <li>Wählen Sie ein eigenes oder lizenzfreies Foto, auf dem eine Person mit Brillenreflexion oder ein störendes Objekt (z. B. eine Tasse auf dem Tisch) zu sehen ist.</li>
+              <li>Bereinigen Sie das Bild mit <strong>einem einzigen, kurzen Satz</strong> auf Deutsch oder Englisch (z. B. in Google AI Studio / Gemini).</li>
+              <li>Verlegen Sie den Hintergrund des bearbeiteten Bildes per kurzem Folge-Prompt in eine internationale Metropole (z. B. New York, Tokio oder Paris).</li>
+              <li>Sichern Sie die <strong>Vorher-/Nachher-Screenshots</strong> sowie den exakten Wortlaut Ihrer Prompts für das Abgabe-PDF.</li>
+            </ol>
+          </div>
+
+          <!-- Beispiel-Prompt -->
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Beispiel-Prompts (2 Schritte)</span>
+              <button type="button" onclick="copyText('Schritt 1: Entferne die Reflexion auf der Brille.\nSchritt 2: Ändere den Hintergrund der Person zu einer Terrasse in New York bei Tageslicht.', 'Beispiel-Prompts kopiert')" class="no-print text-xs font-semibold text-tu-red hover:underline">
+                Kopieren
+              </button>
+            </div>
+            <p class="font-mono text-xs text-slate-800">
+              Schritt 1: „Entferne die Reflexion auf der Brille.“<br />
+              Schritt 2: „Ändere den Hintergrund der Person zu einer Terrasse in New York bei Tageslicht.“
+            </p>
+          </div>
+
+          <!-- Linguistische Reflexionsfrage -->
+          <div class="bg-tu-light/50 border-l-4 border-tu-red rounded-r-xl p-4">
+            <h4 class="text-xs font-bold uppercase tracking-wide text-tu-red mb-1">Linguistische Reflexionsfrage</h4>
+            <p class="text-slate-800 font-medium">
+              Worin unterscheidet sich die sprachliche Struktur (Syntax, Pragmatik, Grad der Implizitheit) Ihres konversationellen Prompts grundlegend von der „Prompt Engineering“-Strategie der 1. Generation?
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- AUFGABE 2 -->
+      <article class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-sm print-break-avoid">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 pb-4 border-b border-slate-100">
+          <div>
+            <div class="flex flex-wrap items-center gap-2 mb-1.5">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-tu-light text-tu-red">5 Punkte</span>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">ca. 25 Min.</span>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">Multikodalität</span>
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold text-slate-900">
+              Aufgabe 2: Multimodale Layout-Steuerung (Skizze + Referenzbild)
+            </h3>
+          </div>
+
+          <label class="no-print inline-flex items-center gap-2.5 cursor-pointer select-none bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 transition-colors shrink-0">
+            <input type="checkbox" class="task-checkbox w-4 h-4 accent-tu-red rounded" data-task-id="task2" data-points="5" />
+            <span>Erledigt (5 P.)</span>
+          </label>
+        </div>
+
+        <div class="mt-4 space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
+          <p>
+            <strong class="text-slate-900">Ziel:</strong> Präzise räumliche Szenenkomposition durch die Kombination mehrerer Eingabemodalitäten (Layout-Skizze mit Textlabels + Personen-Referenzbild).
+          </p>
+
+          <div>
+            <h4 class="font-bold text-slate-900 mb-2">Schrittweiser Ablauf:</h4>
+            <ol class="list-decimal list-inside space-y-1.5 text-slate-700">
+              <li>Erstellen Sie eine eigene einfache Layout-Skizze mit <strong>4–5 beschrifteten Boxen</strong> (z. B. auf Papier abfotografiert, am Tablet oder in PowerPoint – orientieren Sie sich am Beispiel in Tab 3).</li>
+              <li>Wählen Sie ein lizenzfreies oder eigenes Referenzbild einer Hauptperson.</li>
+              <li>Geben Sie beide Bilder (Layout-Skizze + Personenbild) kombiniert in das KI-Tool ein und generieren Sie ein kohärentes Szenenbild, das als <strong>Ausgangsframe (Keyframe)</strong> für ein kurzes Erklär- oder Sprachlern-Video dienen kann.</li>
+              <li>Dokumentieren Sie Skizze, Referenzbild, Prompt und generiertes Ergebnis im Abgabe-PDF.</li>
+            </ol>
+          </div>
+
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Beispiel-Prompt</span>
+              <button type="button" onclick="copyText('Erstelle ein fotorealistisches Szenenbild im 16:9-Format, das exakt der räumlichen Anordnung in Bild 1 (Layout-Skizze) folgt. Platziere die Person aus Bild 2 als Hauptfigur im rot markierten Bereich, mit natürlichem Tageslicht und lebendiger Atmosphäre.', 'Beispiel-Prompt kopiert')" class="no-print text-xs font-semibold text-tu-red hover:underline">
+                Kopieren
+              </button>
+            </div>
+            <p class="font-mono text-xs text-slate-800">
+              „Erstelle ein fotorealistisches Szenenbild im 16:9-Format, das exakt der räumlichen Anordnung in Bild 1 (Layout-Skizze) folgt. Platziere die Person aus Bild 2 als Hauptfigur im rot markierten Bereich, mit natürlichem Tageslicht und lebendiger Atmosphäre.“
+            </p>
+          </div>
+
+          <div class="bg-tu-light/50 border-l-4 border-tu-red rounded-r-xl p-4">
+            <h4 class="text-xs font-bold uppercase tracking-wide text-tu-red mb-1">Linguistische Reflexionsfrage</h4>
+            <p class="text-slate-800 font-medium">
+              Warum stößt rein verbales Prompting bei präzisen räumlichen Anordnungen schnell an Grenzen, und wie wirken hier verschiedene Zeichensysteme (<strong>Multikodalität</strong>: Sprache, Grafik/Layout, Fotografie) produktiv zusammen?
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- AUFGABE 3 -->
+      <article class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-sm print-break-avoid">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 pb-4 border-b border-slate-100">
+          <div>
+            <div class="flex flex-wrap items-center gap-2 mb-1.5">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-tu-light text-tu-red">6 Punkte</span>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">ca. 30 Min.</span>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">Video &amp; Mehrsprachigkeit</span>
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold text-slate-900">
+              Aufgabe 3: Mehrsprachiger Micro-Vlog &amp; Timeline-Prompting (Veo / Sora)
+            </h3>
+          </div>
+
+          <label class="no-print inline-flex items-center gap-2.5 cursor-pointer select-none bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 transition-colors shrink-0">
+            <input type="checkbox" class="task-checkbox w-4 h-4 accent-tu-red rounded" data-task-id="task3" data-points="6" />
+            <span>Erledigt (6 P.)</span>
+          </label>
+        </div>
+
+        <div class="mt-4 space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
+          <p>
+            <strong class="text-slate-900">Ziel:</strong> Präzise Steuerung zeitlich getakteter Handlungen („Timeline Actions“) und mehrsprachiger Dialoge (Code-Switching) in einem einzigen strukturierten Video-Prompt.
+          </p>
+
+          <div>
+            <h4 class="font-bold text-slate-900 mb-2">Schrittweiser Ablauf:</h4>
+            <ol class="list-decimal list-inside space-y-1.5 text-slate-700">
+              <li>Entwerfen Sie ein Szenario für einen <strong>5–8-sekündigen Micro-Vlog oder Sprachlern-Clip</strong> (z. B. Deutsch–Englisch oder eine andere Sprachkombination Ihrer Gruppe).</li>
+              <li>Formulieren Sie einen detaillierten Video-Prompt mit <strong>mindestens zwei Zeitmarken</strong> (z. B. <code>00:01</code>, <code>00:03</code>), konkreter Mimik/Gestik sowie einem klar nummerierten Sprachwechsel.</li>
+              <li>Fügen Sie am Ende eine explizite <strong>Ausschluss-Anweisung</strong> hinzu, damit keine automatisch generierten Bildschirm-Untertitel eingeblendet werden.</li>
+              <li><strong>Praxis / Alternative:</strong> Sofern ein kostenfreier Zugang (z. B. Veo, Sora oder eine freie Alternative) verfügbar ist, generieren Sie den Clip und verlinken/dokumentieren ihn. Andernfalls dokumentieren Sie den finalen Prompt zusammen mit einem kurzen <strong>erwarteten Storyboard</strong> (Zeitachse, Bild, Ton/Sprache).</li>
+            </ol>
+          </div>
+
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Beispiel-Prompt (Timeline + Code-Switching)</span>
+              <button type="button" onclick="copyText('Szene: Gemütliches Café, Nahaufnahme einer jungen Frau in natürlichem Licht.\n00:01 Sie blickt lächelnd in die Kamera, hebt eine Kaffeetasse leicht an und sagt auf Deutsch: „Kaffee am Morgen – auf Spanisch sagen wir:“\n00:04 Sie zwinkert freundlich, deutet auf die Tasse und sagt auf Spanisch: „¡Un café por la mañana!“ + Deutsch: „Klingt doch wunderbar, oder?“\n*Keine Bildschirm-Untertitel oder Text-Overlays einblenden.', 'Video-Prompt kopiert')" class="no-print text-xs font-semibold text-tu-red hover:underline">
+                Kopieren
+              </button>
+            </div>
+            <p class="font-mono text-xs text-slate-800 whitespace-pre-line">Szene: Gemütliches Café, Nahaufnahme einer jungen Frau in natürlichem Licht.
+00:01 Sie blickt lächelnd in die Kamera, hebt eine Kaffeetasse leicht an und sagt auf Deutsch: „Kaffee am Morgen – auf Spanisch sagen wir:“
+00:04 Sie zwinkert freundlich, deutet auf die Tasse und sagt auf Spanisch: „¡Un café por la mañana!“ + Deutsch: „Klingt doch wunderbar, oder?“
+*Keine Bildschirm-Untertitel oder Text-Overlays einblenden.</p>
+          </div>
+
+          <div class="bg-tu-light/50 border-l-4 border-tu-red rounded-r-xl p-4">
+            <h4 class="text-xs font-bold uppercase tracking-wide text-tu-red mb-1">Linguistische Reflexionsfrage</h4>
+            <p class="text-slate-800 font-medium">
+              Welche sprachlichen Mittel (Zeitmarker, Bewegungs- und Emotionsverben, direkte Rede, metasprachliche Anweisungen) sind entscheidend, damit multimodale KI-Modelle Sprache, Gestik und Timing kohärent synchronisieren?
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- AUFGABE 4 -->
+      <article class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-sm print-break-avoid">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 pb-4 border-b border-slate-100">
+          <div>
+            <div class="flex flex-wrap items-center gap-2 mb-1.5">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-tu-light text-tu-red">5 Punkte</span>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">ca. 20 Min.</span>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">Ethik &amp; Medienkritik</span>
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold text-slate-900">
+              Aufgabe 4: Ethische Leitplanken, Safety-Prompting &amp; Medienkritik
+            </h3>
+          </div>
+
+          <label class="no-print inline-flex items-center gap-2.5 cursor-pointer select-none bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 transition-colors shrink-0">
+            <input type="checkbox" class="task-checkbox w-4 h-4 accent-tu-red rounded" data-task-id="task4" data-points="5" />
+            <span>Erledigt (5 P.)</span>
+          </label>
+        </div>
+
+        <div class="mt-4 space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
+          <p>
+            <strong class="text-slate-900">Ziel:</strong> Präventive Vermeidung unbeabsichtigter Richtlinienverstöße durch gezieltes Safety-Prompting sowie kritische Reflexion rechtlicher und ethischer Grenzen multimodaler KI.
+          </p>
+
+          <div>
+            <h4 class="font-bold text-slate-900 mb-2">Schrittweiser Ablauf:</h4>
+            <ol class="list-decimal list-inside space-y-1.5 text-slate-700">
+              <li>Entwerfen Sie ein <strong>eigenes fiktives, harmlos beginnendes Prompt-Szenario</strong>, das durch sprachliche Mehrdeutigkeit unbeabsichtigt problematisch (z. B. gewalthaltig, irreführend oder persönlichkeitsrechtsverletzend) interpretiert werden könnte.</li>
+              <li>Sichern Sie diesen Prompt durch gezielte präventive <strong>„Safety-Prompts“</strong> ab (z. B. Ausschluss gewalthaltiger/expliziter Elemente, Verzicht auf reale Personen/Stimmen, sachlicher Stil).</li>
+              <li>Verfassen Sie eine kurze medienkritische Bewertung (ca. 150–200 Wörter): <strong>Wo liegen die Grenzen rein promptbasierter Sicherheitsfilter?</strong> Gehen Sie dabei auf mindestens zwei der folgenden Stichworte ein: <em>Urheberrecht, Deepfakes, Persönlichkeitsrechte, Kennzeichnungspflicht (EU AI Act / Wasserzeichen)</em>.</li>
+            </ol>
+          </div>
+
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Beispiel für präventive Safety-Ergänzung</span>
+              <button type="button" onclick="copyText('* Entferne jegliche gewalthaltige, explizite oder richtlinienwidrige Elemente.\n* Verwende ausschließlich fiktive Gesichter ohne Ähnlichkeit zu realen Personen.\n* Keine synthetische Hintergrundstimme hinzufügen.', 'Safety-Ergänzung kopiert')" class="no-print text-xs font-semibold text-tu-red hover:underline">
+                Kopieren
+              </button>
+            </div>
+            <p class="font-mono text-xs text-slate-800 whitespace-pre-line">* Entferne jegliche gewalthaltige, explizite oder richtlinienwidrige Elemente.
+* Verwende ausschließlich fiktive Gesichter ohne Ähnlichkeit zu realen Personen.
+* Keine synthetische Hintergrundstimme hinzufügen.</p>
+          </div>
+
+          <div class="bg-tu-light/50 border-l-4 border-tu-red rounded-r-xl p-4">
+            <h4 class="text-xs font-bold uppercase tracking-wide text-tu-red mb-1">Linguistische &amp; ethische Reflexionsfrage</h4>
+            <p class="text-slate-800 font-medium">
+              Inwiefern zeigt die Wirksamkeit präventiver Safety-Prompts das erweiterte pragmatische Verständnis von Modellen der 2. Generation – und warum reichen sprachliche Anweisungen allein für rechtssichere, verantwortungsvolle Web-Kommunikation dennoch nicht aus?
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Bewertungsraster & Finale Abgabe-Checkliste -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 print-break-avoid">
+        <!-- Bewertungsraster -->
+        <div class="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <h3 class="text-lg font-bold text-slate-900 mb-3">Bewertungsraster (20 Punkte)</h3>
+          <div class="overflow-x-auto border border-slate-200 rounded-xl">
+            <table class="min-w-full divide-y divide-slate-200 text-xs sm:text-sm text-left">
+              <thead class="bg-slate-50 text-slate-700 font-semibold">
+                <tr>
+                  <th class="px-4 py-2.5">Kriterium</th>
+                  <th class="px-4 py-2.5">Schwerpunkt</th>
+                  <th class="px-4 py-2.5 text-right">Gewichtung</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                <tr>
+                  <td class="px-4 py-2.5 font-semibold text-slate-900">Praktische Umsetzung</td>
+                  <td class="px-4 py-2.5 text-slate-600">Nachvollziehbare Durchführung (Screenshots, Skizze, Storyboard/Clip)</td>
+                  <td class="px-4 py-2.5 text-right font-semibold text-slate-900">6 P.</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2.5 font-semibold text-slate-900">Prompt-Qualität</td>
+                  <td class="px-4 py-2.5 text-slate-600">Präzision, Struktur (Timeline, Code-Switching, Safety-Leitplanken)</td>
+                  <td class="px-4 py-2.5 text-right font-semibold text-slate-900">5 P.</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2.5 font-semibold text-slate-900">Linguistische Tiefe</td>
+                  <td class="px-4 py-2.5 text-slate-600">Fundierte Reflexion mit Bezug zu Skript &amp; Fachbegriffen (z. B. Multikodalität)</td>
+                  <td class="px-4 py-2.5 text-right font-semibold text-slate-900">7 P.</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2.5 font-semibold text-slate-900">Formale Vollständigkeit</td>
+                  <td class="px-4 py-2.5 text-slate-600">1 sauberes PDF, alle Namen &amp; Matrikelnummern, fristgerechte Abgabe</td>
+                  <td class="px-4 py-2.5 text-right font-semibold text-slate-900">2 P.</td>
+                </tr>
+              </tbody>
+              <tfoot class="bg-slate-50 font-bold text-slate-900">
+                <tr>
+                  <td colspan="2" class="px-4 py-2.5">Gesamtpunktzahl</td>
+                  <td class="px-4 py-2.5 text-right text-tu-red">20 Punkte</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- Finale Abgabe-Checkliste -->
+        <div class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900 mb-3">Checkliste vor dem Upload</h3>
+            <ul class="space-y-2.5 text-xs sm:text-sm text-slate-700 mb-5">
+              <li class="flex items-start gap-2.5">
+                <input type="checkbox" class="meta-checkbox mt-0.5 w-4 h-4 accent-tu-red rounded" data-meta-id="meta1" />
+                <span>Deckblatt mit <strong>Namen &amp; Matrikelnummern</strong> aller Gruppenmitglieder vorhanden</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <input type="checkbox" class="meta-checkbox mt-0.5 w-4 h-4 accent-tu-red rounded" data-meta-id="meta2" />
+                <span>Alle <strong>Prompts, Screenshots/Skizzen</strong> und ggf. Links sauber eingebunden</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <input type="checkbox" class="meta-checkbox mt-0.5 w-4 h-4 accent-tu-red rounded" data-meta-id="meta3" />
+                <span>Alle 4 <strong>linguistischen Reflexionen</strong> vollständig ausformuliert</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <input type="checkbox" class="meta-checkbox mt-0.5 w-4 h-4 accent-tu-red rounded" data-meta-id="meta4" />
+                <span>Als <strong>einzelne PDF-Datei</strong> exportiert (Frist: <strong>02.12.2026, 08:00 Uhr</strong>)</span>
+              </li>
+            </ul>
+          </div>
+
+          <a
+            href="https://isis.tu-berlin.de/mod/assign/view.php?id=2346775"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-tu-red hover:bg-tu-darkred text-white text-sm font-semibold shadow-sm transition-colors"
+          >
+            <span>Gruppenarbeit auf ISIS einreichen</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- FOOTER                                                                -->
+  <!-- ===================================================================== -->
+  <footer class="border-t border-slate-200 bg-white mt-auto">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <p>
+        Technische Universität Berlin · Institut für Sprache und Kommunikation · WiSe 2026/27
+      </p>
+      <p>
+        07. Sitzung (25.11.2026) · PD Dr. See-Young Cho
+      </p>
+    </div>
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- TOAST-CONTAINER FÜR FEEDBACK-MELDUNGEN                                -->
+  <!-- ===================================================================== -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none" aria-live="polite"></div>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT LOGIK (TABS, FILTER, CLIPBOARD, LOCALSTORAGE)              -->
+  <!-- ===================================================================== -->
+  <script>
+    // Schlüssel für localStorage
+    const STORAGE_KEY_TASKS = 'tu_berlin_wise26_sitzung07_tasks';
+    const STORAGE_KEY_META = 'tu_berlin_wise26_sitzung07_meta';
+
+    /**
+     * Sicheres Lesen aus localStorage (mit try/catch gegen iFrame-Restriktionen)
+     */
+    function safeLoad(key, fallback) {
+      try {
+        const raw = window.localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (err) {
+        return fallback;
+      }
+    }
+
+    /**
+     * Sicheres Schreiben in localStorage
+     */
+    function safeSave(key, value) {
+      try {
+        window.localStorage.setItem(key, JSON.stringify(value));
+      } catch (err) {
+        // Ignorieren, falls localStorage deaktiviert ist
+      }
+    }
+
+    /**
+     * Zeigt eine dezente Toast-Benachrichtigung an (kein alert()!)
+     */
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      toast.className =
+        'pointer-events-auto bg-slate-900 text-white text-xs sm:text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 transition-all duration-300 opacity-0 translate-y-2';
+      toast.innerHTML =
+        '<svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>' +
+        '<span>' + message + '</span>';
+
+      container.appendChild(toast);
+
+      // Animation einblenden
+      requestAnimationFrame(() => {
+        toast.classList.remove('opacity-0', 'translate-y-2');
+      });
+
+      // Nach 2.6 Sekunden ausblenden und entfernen
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 2600);
+    }
+
+    /**
+     * Kopiert Text zuverlässig in die Zwischenablage (iFrame-sicher via execCommand)
+     */
+    function copyText(text, successMsg) {
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.top = '-9999px';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(textarea);
+
+        if (ok) {
+          showToast(successMsg || 'In die Zwischenablage kopiert');
+          return;
+        }
+      } catch (err) {
+        // Fallback weiter unten
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard
+          .writeText(text)
+          .then(() => showToast(successMsg || 'In die Zwischenablage kopiert'))
+          .catch(() => showToast('Kopieren fehlgeschlagen – bitte manuell markieren.'));
+      } else {
+        showToast('Kopieren fehlgeschlagen – bitte manuell markieren.');
+      }
+    }
+
+    /**
+     * Tab-Steuerung
+     */
+    function switchTab(targetId) {
+      const panels = document.querySelectorAll('.tab-panel');
+      const buttons = document.querySelectorAll('.tab-btn');
+
+      panels.forEach((panel) => {
+        if (panel.id === targetId) {
+          panel.classList.remove('hidden');
+        } else {
+          panel.classList.add('hidden');
+        }
+      });
+
+      buttons.forEach((btn) => {
+        const isActive = btn.getAttribute('data-tab') === targetId;
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        if (isActive) {
+          btn.classList.add('border-tu-red', 'text-tu-red', 'font-semibold');
+          btn.classList.remove('border-transparent', 'text-slate-600', 'font-medium');
+        } else {
+          btn.classList.remove('border-tu-red', 'text-tu-red', 'font-semibold');
+          btn.classList.add('border-transparent', 'text-slate-600', 'font-medium');
+        }
+      });
+
+      // Nach oben scrollen für gute Lesbarkeit
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /**
+     * Aktualisiert Fortschrittsanzeige (Header & Tab 4)
+     */
+    function updateProgress() {
+      const checkboxes = document.querySelectorAll('.task-checkbox');
+      let earnedPoints = 0;
+      const savedState = {};
+
+      checkboxes.forEach((cb) => {
+        const id = cb.getAttribute('data-task-id');
+        const pts = parseInt(cb.getAttribute('data-points'), 10) || 0;
+        savedState[id] = cb.checked;
+        if (cb.checked) {
+          earnedPoints += pts;
+        }
+      });
+
+      safeSave(STORAGE_KEY_TASKS, savedState);
+
+      const percent = Math.round((earnedPoints / 20) * 100);
+      const headerText = document.getElementById('header-points-text');
+      const headerBar = document.getElementById('header-progress-bar');
+      const tasksText = document.getElementById('tasks-points-text');
+      const tasksBar = document.getElementById('tasks-progress-bar');
+
+      if (headerText) headerText.textContent = earnedPoints + ' / 20 Punkte';
+      if (headerBar) headerBar.style.width = percent + '%';
+      if (tasksText) tasksText.textContent = earnedPoints + ' / 20 Punkte erledigt';
+      if (tasksBar) tasksBar.style.width = percent + '%';
+    }
+
+    /**
+     * Filtert die Tool-Referenztabelle in Tab 3
+     */
+    function initToolFilters() {
+      const filterButtons = document.querySelectorAll('.tool-filter-btn');
+      const rows = document.querySelectorAll('#tools-table-body tr');
+
+      filterButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const filter = btn.getAttribute('data-filter');
+
+          // Button-Zustände aktualisieren
+          filterButtons.forEach((b) => {
+            b.classList.remove('bg-slate-900', 'text-white');
+            b.classList.add('bg-slate-100', 'text-slate-700');
+          });
+          btn.classList.remove('bg-slate-100', 'text-slate-700');
+          btn.classList.add('bg-slate-900', 'text-white');
+
+          // Zeilen ein-/ausblenden
+          rows.forEach((row) => {
+            const cat = row.getAttribute('data-category');
+            if (filter === 'all' || cat === filter) {
+              row.classList.remove('hidden');
+            } else {
+              row.classList.add('hidden');
+            }
+          });
+        });
+      });
+    }
+
+    /**
+     * Erzeugt die Abgabe-Vorlage zum Kopieren (Tab 4)
+     */
+    function getSubmissionTemplate() {
+      return [
+        '# Abgabe der Gruppenarbeit [20 Punkte]',
+        'Lehrveranstaltung: [WiSe 2026/27] M.Sc.-SK: Angewandte Linguistik: Deskriptive Analyse von Sprache und Schrift',
+        'Sitzung: 07. Sitzung (25.11.2026) – Multimodale Web-Kommunikation & Generative KI (2. Generation)',
+        'Dozent: PD Dr. See-Young Cho',
+        '',
+        '## Gruppenmitglieder',
+        '- Name 1 (Matrikelnummer: ...)',
+        '- Name 2 (Matrikelnummer: ...)',
+        '- Name 3 (Matrikelnummer: ...)',
+        '',
+        '---',
+        '',
+        '## Aufgabe 1: Die „2. Generation“-Usability-Challenge (4 Punkte)',
+        '- Verwendetes Tool: ...',
+        '- Prompt Schritt 1 (Bildbereinigung): „...“',
+        '- Prompt Schritt 2 (Hintergrundwechsel): „...“',
+        '- Dokumentation: [Vorher- / Nachher-Screenshots hier einfügen]',
+        '- Linguistische Reflexion (Syntax, Pragmatik, Implizitheit vs. 1. Generation):',
+        '  ...',
+        '',
+        '## Aufgabe 2: Multimodale Layout-Steuerung (5 Punkte)',
+        '- Verwendetes Tool: ...',
+        '- Eingabemedien: [Layout-Skizze + Referenzbild hier einfügen]',
+        '- Verwendeter Prompt: „...“',
+        '- Generiertes Szenenbild (Keyframe): [Screenshot hier einfügen]',
+        '- Linguistische Reflexion (Grenzen verbalen Promptings & Multikodalität):',
+        '  ...',
+        '',
+        '## Aufgabe 3: Mehrsprachiger Micro-Vlog & Timeline-Prompting (6 Punkte)',
+        '- Gewählte Sprachkombination: ...',
+        '- Finaler Video-Prompt (inkl. Zeitmarken, Code-Switching & Untertitel-Ausschluss):',
+        '  00:01 ...',
+        '  00:03 ...',
+        '  *Keine Bildschirm-Untertitel einblenden.',
+        '- Ergebnis (Link/Screenshot zum Clip ODER erwartetes Storyboard):',
+        '  ...',
+        '- Linguistische Reflexion (Zeitmarker, Bewegungs-/Emotionsverben, direkte Rede, Metasprache):',
+        '  ...',
+        '',
+        '## Aufgabe 4: Ethische Leitplanken, Safety-Prompting & Medienkritik (5 Punkte)',
+        '- Fiktives, ambiges Ausgangsszenario:',
+        '  ...',
+        '- Präventiv abgesicherter Prompt (Safety-Prompting):',
+        '  ...',
+        '- Medienkritische Bewertung (150–200 Wörter zu Urheberrecht, Deepfakes, Persönlichkeitsrechten / EU AI Act):',
+        '  ...',
+      ].join('\n');
+    }
+
+    /**
+     * Initialisierung nach Laden des DOMs
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Tab-Buttons verbinden
+      document.querySelectorAll('.tab-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-tab');
+          if (target) switchTab(target);
+        });
+      });
+
+      // 2. Gespeicherten Aufgaben-Fortschritt wiederherstellen
+      const savedTasks = safeLoad(STORAGE_KEY_TASKS, {});
+      document.querySelectorAll('.task-checkbox').forEach((cb) => {
+        const id = cb.getAttribute('data-task-id');
+        if (savedTasks[id]) {
+          cb.checked = true;
+        }
+        cb.addEventListener('change', updateProgress);
+      });
+      updateProgress();
+
+      // 3. Gespeicherte Meta-Checkliste wiederherstellen
+      const savedMeta = safeLoad(STORAGE_KEY_META, {});
+      document.querySelectorAll('.meta-checkbox').forEach((cb) => {
+        const id = cb.getAttribute('data-meta-id');
+        if (savedMeta[id]) {
+          cb.checked = true;
+        }
+        cb.addEventListener('change', () => {
+          const state = {};
+          document.querySelectorAll('.meta-checkbox').forEach((item) => {
+            state[item.getAttribute('data-meta-id')] = item.checked;
+          });
+          safeSave(STORAGE_KEY_META, state);
+        });
+      });
+
+      // 4. Filter-Buttons in Tab 3 aktivieren
+      initToolFilters();
+
+      // 5. Button „Abgabe-Vorlage kopieren“ verbinden
+      const copyTemplateBtn = document.getElementById('copy-template-btn');
+      if (copyTemplateBtn) {
+        copyTemplateBtn.addEventListener('click', () => {
+          copyText(getSubmissionTemplate(), 'Abgabe-Vorlage in die Zwischenablage kopiert');
+        });
+      }
+    });
+  </script>
+</body>
+</html>
